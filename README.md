@@ -3,6 +3,11 @@
 Truffle Flattener concats solidity files developed under Truffle with all of
 their dependencies.
 
+This tool helps you to verify contracts developed with Truffle on
+[Etherscan](https://etherscan.io), or debugging them on
+[Remix](https://remix.ethereum.org), by merging your files and their
+dependencies in the right order.
+
 # Installation
 
 `npm install --save-dev truffle-flattener`
