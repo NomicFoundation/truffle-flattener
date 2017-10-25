@@ -1,0 +1,28 @@
+{
+  "name": "truffle-flattener",
+  "version": "1.0.0",
+  "description": "Truffle Flattener concats solidity files developed under Truffle with all of their dependencies",
+  "bin": {
+    "truffle-flattener": "index.js"
+  },
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "truffle",
+    "smart-contracts"
+  ],
+  "homepage": "https://github.com/alcuadrado/truffle-flattener",
+  "repository": "github:alcuadrado/truffle-flattener",
+  "author": "Patricio Palladino",
+  "license": "MIT",
+  "dependencies": {
+    "semver": "^5.4.1",
+    "solidity-parser": "^0.4.0",
+    "truffle-config": "^1.0.2",
+    "truffle-resolver": "^4.0.1",
+    "tsort": "0.0.1"
+  },
+  "devDependencies": {
+    "prettier": "^1.7.4"
+  }
+}
