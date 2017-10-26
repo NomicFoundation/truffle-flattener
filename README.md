@@ -10,7 +10,7 @@ dependencies in the right order.
 
 # Installation
 
-`npm install --save-dev truffle-flattener`
+`npm install truffle-flattener -g`
 
 # Usage
 
