@@ -14,8 +14,8 @@ dependencies in the right order.
 
 # Usage
 
-Just intall it with npm in your traffle project and run
-`traffle-flattener <solidity-files>`.
+Just intall it with npm in your truffle project and run
+`truffle-flattener <solidity-files>`.
 
 # Why not [Solidity Flattener](https://github.com/BlockCatIO/solidity-flattener)?
 
