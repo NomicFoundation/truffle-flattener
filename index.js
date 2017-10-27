@@ -3,6 +3,7 @@ const process = require("process");
 const fs = require("fs");
 const path = require("path");
 
+const findUp = require("find-up");
 const semver = require("semver");
 const Config = require("truffle-config");
 const Resolver = require("truffle-resolver");
@@ -33,6 +34,10 @@ function resolve(importPath) {
   });
 }
 
+function getDirPath(filePath) {
+  return filePath.substring(0, filePath.lastIndexOf(path.sep));
+}
+
 function getDependencies(filePath, fileContents) {
   const dependencies = [];
 
@@ -47,8 +52,7 @@ function getDependencies(filePath, fileContents) {
 
   for (let dependency of imports) {
     if (dependency.startsWith("./") || dependency.startsWith("../")) {
-      dependency =
-        filePath.substring(0, filePath.lastIndexOf("/") + 1) + dependency;
+      dependency = getDirPath(filePath) + path.sep + dependency;
       dependency = path.normalize(dependency);
     }
 
@@ -202,13 +206,36 @@ async function printContactenation(files) {
   }
 }
 
-async function main(files) {
-  if (files.length == 0) {
+async function getTruffleRoot() {
+  try {
+    const truffleConfiPath = await findUp("truffle.js");
+    return getDirPath(truffleConfiPath);
+  } catch (error) {
+    throw new Error(
+      "Truffle Flattener must be run inside a Truffle project: truffle.js not found"
+    );
+  }
+}
+
+function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
+  return filePaths.map(f => path.relative(truffleRoot, path.resolve(f)));
+}
+
+async function main(filePaths) {
+  if (filePaths.length == 0) {
     console.error("Usage: truffle-flattener <files>");
   }
 
   try {
-    const sortedFiles = await getSortedFilePaths(files);
+    const truffleRoot = await getTruffleRoot();
+    const filePathsFromTruffleRoot = getFilePathsFromTruffleRoot(
+      filePaths,
+      truffleRoot
+    );
+
+    process.chdir(truffleRoot);
+
+    const sortedFiles = await getSortedFilePaths(filePathsFromTruffleRoot);
     await printContactenation(sortedFiles);
   } catch (error) {
     console.log(error);

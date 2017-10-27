@@ -1,6 +1,6 @@
 {
   "name": "truffle-flattener",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Truffle Flattener concats solidity files developed under Truffle with all of their dependencies",
   "bin": {
     "truffle-flattener": "index.js"
@@ -16,6 +16,7 @@
   "author": "Patricio Palladino",
   "license": "MIT",
   "dependencies": {
+    "find-up": "^2.1.0",
     "semver": "^5.4.1",
     "solidity-parser": "^0.4.0",
     "truffle-config": "^1.0.2",
