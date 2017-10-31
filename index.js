@@ -11,6 +11,7 @@ const SolidityParser = require("solidity-parser");
 
 const PRAGAMA_SOLIDITY_VERSION_REGEX = /^\s*pragma\ssolidity\s+(.*?)\s*;/;
 const SUPPORTED_VERSION_DECLARATION_REGEX = /^\^?\d+(\.\d+){1,2}$/;
+const IMPORT_SOLIDITY_REGEX = /^.*import.*$/mg;
 
 function unique(array) {
   return [...new Set(array)];
@@ -102,7 +103,7 @@ async function printFileWithoutPragma(filePath) {
   const output = resolved.fileContents.replace(
     PRAGAMA_SOLIDITY_VERSION_REGEX,
     ""
-  );
+  ).replace(IMPORT_SOLIDITY_REGEX,"");
 
   console.log(output.trim());
 }
