@@ -207,20 +207,19 @@ async function printContactenation(files) {
 }
 
 async function getTruffleRoot() {
+  try {
+      const truffleConfiPath = await findUp("truffle.js");
+      return getDirPath(truffleConfiPath);
+  } catch (error) {
     try {
-        const truffleConfiPath = await findUp("truffle.js");
-        return getDirPath(truffleConfiPath);
-    } catch (error) {
-        try {
-            const truffleConfiPath = await findUp("truffle-config.js");
-            return getDirPath(truffleConfiPath);
-        }
-        catch (error) {
-            throw new Error(
-                "Truffle Flattener must be run inside a Truffle project: truffle.js not found"
-            );
-        }
+      const truffleConfiPath = await findUp("truffle-config.js");
     }
+    catch (error) {
+      throw new Error(
+        "Truffle Flattener must be run inside a Truffle project: truffle.js not found"
+      );
+    }
+  }
 }
 
 function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
