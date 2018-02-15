@@ -12,7 +12,7 @@ const SolidityParser = require("solidity-parser");
 
 const PRAGAMA_SOLIDITY_VERSION_REGEX = /^\s*pragma\ssolidity\s+(.*?)\s*;/;
 const SUPPORTED_VERSION_DECLARATION_REGEX = /^\^?\d+(\.\d+){1,2}$/;
-const IMPORT_SOLIDITY_REGEX = /^.*import.*$/mg;
+const IMPORT_SOLIDITY_REGEX = /^\s*import(\s+).*$/mg;
 
 function unique(array) {
   return [...new Set(array)];
