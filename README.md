@@ -24,3 +24,10 @@ reimplementation of Solidity Flattener. By being closely coupled to Truffle it
 can take advantage of its dependencies resolution logic making `--solc-paths` a
 thing of the past. It also supports flattening more than one file at once,
 concatenating everything in the right order, whithout duplicating any file.
+
+# Limitations
+
+If you deploy your contracts with truffle's migrations the output of 
+`truffle-flattener` may not match while verifying it in Etherscan. You
+can use [Solidity Flattener](https://github.com/BlockCatIO/solidity-flattener)
+in that case, or deploy your contracts from [Remix](https://remix.ethereum.org).
