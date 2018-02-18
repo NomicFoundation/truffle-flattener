@@ -1,6 +1,6 @@
 {
   "name": "truffle-flattener",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Truffle Flattener concats solidity files developed under Truffle with all of their dependencies",
   "bin": {
     "truffle-flattener": "index.js"
