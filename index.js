@@ -12,7 +12,7 @@ const SolidityParser = require("solidity-parser");
 
 const PRAGAMA_SOLIDITY_VERSION_REGEX = /^\s*pragma\ssolidity\s+(.*?)\s*;/;
 const SUPPORTED_VERSION_DECLARATION_REGEX = /^\^?\d+(\.\d+){1,2}$/;
-const IMPORT_SOLIDITY_REGEX = /^\s*import(\s+).*$/mg;
+const IMPORT_SOLIDITY_REGEX = /^\s*import(\s+).*$/gm;
 
 function unique(array) {
   return [...new Set(array)];
@@ -39,27 +39,23 @@ function getDirPath(filePath) {
 }
 
 function getDependencies(filePath, fileContents) {
-  const dependencies = [];
-
-  let imports;
   try {
-    imports = SolidityParser.parse(fileContents, "imports");
+    return SolidityParser.parse(fileContents, "imports").map(dependency =>
+      getNormalizedDependencyPath(dependency, filePath)
+    );
   } catch (error) {
     throw new Error(
       "Could not parse " + filePath + " for extracting its imports."
     );
   }
+}
 
-  for (let dependency of imports) {
-    if (dependency.startsWith("./") || dependency.startsWith("../")) {
-      dependency = getDirPath(filePath) + path.sep + dependency;
-      dependency = path.normalize(dependency);
-    }
-
-    dependencies.push(dependency);
+function getNormalizedDependencyPath(dependency, filePath) {
+  if (dependency.startsWith("./") || dependency.startsWith("../")) {
+    dependency = path.join(getDirPath(filePath), dependency);
+    dependency = path.normalize(dependency);
   }
-
-  return dependencies;
+  return dependency;
 }
 
 async function dependenciesDfs(graph, visitedFiles, filePath) {
@@ -93,7 +89,7 @@ async function getSortedFilePaths(entryPoints) {
 
   const topologicalSortedFiles = graph.sort();
 
-  // If an enrty has no dependency it won't be included in the graph, so we
+  // If an entry has no dependency it won't be included in the graph, so we
   // add them and then dedup the array
   const withEntries = topologicalSortedFiles.concat(entryPoints);
 
@@ -104,10 +100,9 @@ async function getSortedFilePaths(entryPoints) {
 
 async function printFileWithoutPragma(filePath) {
   const resolved = await resolve(filePath);
-  const output = resolved.fileContents.replace(
-    PRAGAMA_SOLIDITY_VERSION_REGEX,
-    ""
-  ).replace(IMPORT_SOLIDITY_REGEX,"");
+  const output = resolved.fileContents
+    .replace(PRAGAMA_SOLIDITY_VERSION_REGEX, "")
+    .replace(IMPORT_SOLIDITY_REGEX, "");
 
   console.log(output.trim());
 }
@@ -125,11 +120,7 @@ async function getFileCompilerVersionDeclaration(filePath) {
 
   if (!SUPPORTED_VERSION_DECLARATION_REGEX.test(version)) {
     throw new Error(
-      "Unsupported compiler version declaration in  " +
-        filePath +
-        ": " +
-        version +
-        ". Only pinned or ^ versions are supported."
+      `Unsupported compiler version declaration in ${filePath}: ${version}. Only pinned or ^ versions are supported.`
     );
   }
 
@@ -207,19 +198,19 @@ async function printContactenation(files) {
 }
 
 async function getTruffleRoot() {
+  let truffleConfigPath;
   try {
-      const truffleConfiPath = await findUp("truffle.js");
-      return getDirPath(truffleConfiPath);
+    truffleConfigPath = await findUp("truffle.js");
   } catch (error) {
     try {
-      const truffleConfiPath = await findUp("truffle-config.js");
-    }
-    catch (error) {
+      truffleConfigPath = await findUp("truffle-config.js");
+    } catch (error) {
       throw new Error(
         "Truffle Flattener must be run inside a Truffle project: truffle.js not found"
       );
     }
   }
+  return getDirPath(truffleConfigPath);
 }
 
 function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
@@ -227,8 +218,9 @@ function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
 }
 
 async function main(filePaths) {
-  if (filePaths.length == 0) {
+  if (!filePaths.length) {
     console.error("Usage: truffle-flattener <files>");
+    return;
   }
 
   try {
@@ -243,7 +235,7 @@ async function main(filePaths) {
     const sortedFiles = await getSortedFilePaths(filePathsFromTruffleRoot);
     await printContactenation(sortedFiles);
   } catch (error) {
-    console.log(error);
+    console.log(error, error.stack);
   }
 }
 
