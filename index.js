@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-'use strict';
+"use strict";
 
 const process = require("process");
 const fs = require("fs");
@@ -94,10 +94,11 @@ async function getSortedFilePaths(entryPoints) {
   try {
     topologicalSortedFiles = graph.sort();
   } catch (e) {
-    if (e.toString().includes('Error: There is a cycle in the graph.')) {
-      const message = 'There is a cycle in the dependency'+ 
-        ' graph, can\'t compute topological ordering. Files:\n\t'+
-        visitedFiles.join('\n\t');
+    if (e.toString().includes("Error: There is a cycle in the graph.")) {
+      const message =
+        "There is a cycle in the dependency" +
+        " graph, can't compute topological ordering. Files:\n\t" +
+        visitedFiles.join("\n\t");
       throw new Error(message);
     }
   }
