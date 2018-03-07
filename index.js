@@ -1,4 +1,7 @@
 #! /usr/bin/env node
+
+'use strict';
+
 const process = require("process");
 const fs = require("fs");
 const path = require("path");
@@ -87,7 +90,17 @@ async function getSortedFilePaths(entryPoints) {
     await dependenciesDfs(graph, visitedFiles, entryPoint);
   }
 
-  const topologicalSortedFiles = graph.sort();
+  let topologicalSortedFiles;
+  try {
+    topologicalSortedFiles = graph.sort();
+  } catch (e) {
+    if (e.toString().includes('Error: There is a cycle in the graph.')) {
+      const message = 'There is a cycle in the dependency'+ 
+        ' graph, can\'t compute topological ordering. Files:\n\t'+
+        visitedFiles.join('\n\t');
+      throw new Error(message);
+    }
+  }
 
   // If an entry has no dependency it won't be included in the graph, so we
   // add them and then dedup the array
