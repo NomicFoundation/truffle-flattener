@@ -112,13 +112,13 @@ async function getSortedFilePaths(entryPoints) {
   return files;
 }
 
-async function printFileWithoutPragma(filePath) {
+async function printFileWithoutPragma(filePath, log) {
   const resolved = await resolve(filePath);
   const output = resolved.fileContents
     .replace(PRAGAMA_SOLIDITY_VERSION_REGEX, "")
     .replace(IMPORT_SOLIDITY_REGEX, "");
 
-  console.log(output.trim());
+  log(output.trim());
 }
 
 async function getFileCompilerVersionDeclaration(filePath) {
@@ -198,16 +198,16 @@ async function normalizeCompilerVersionDeclarations(files) {
   return maxCaretVersion;
 }
 
-async function printContactenation(files) {
+async function printContactenation(files, log) {
   const version = await normalizeCompilerVersionDeclarations(files);
 
   if (version) {
-    console.log("pragma solidity " + version + ";");
+    log("pragma solidity " + version + ";");
   }
 
   for (const file of files) {
-    console.log("\n// File: " + file + "\n");
-    await printFileWithoutPragma(file);
+    log("\n// File: " + file + "\n");
+    await printFileWithoutPragma(file, log);
   }
 }
 
@@ -227,12 +227,7 @@ function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
   return filePaths.map(f => path.relative(truffleRoot, path.resolve(f)));
 }
 
-async function main(filePaths) {
-  if (!filePaths.length) {
-    console.error("Usage: truffle-flattener <files>");
-    return;
-  }
-
+async function flatten(filePaths, log) {
   try {
     const truffleRoot = await getTruffleRoot();
     const filePathsFromTruffleRoot = getFilePathsFromTruffleRoot(
@@ -243,10 +238,27 @@ async function main(filePaths) {
     process.chdir(truffleRoot);
 
     const sortedFiles = await getSortedFilePaths(filePathsFromTruffleRoot);
-    await printContactenation(sortedFiles);
+    await printContactenation(sortedFiles, log);
   } catch (error) {
-    console.log(error, error.stack);
+    console.error(error, error.stack);
   }
 }
 
-main(process.argv.slice(2));
+async function main(filePaths) {
+  if (!filePaths.length) {
+    console.error("Usage: truffle-flattener <files>");
+    return;
+  }
+
+  await flatten(filePaths, str => console.log(str));
+}
+
+if (require.main === module) {
+  main(process.argv.slice(2));
+}
+
+module.exports = async function(filePaths) {
+  let res = "";
+  await flatten(filePaths, str => (res += str));
+  return res;
+};
