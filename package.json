@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "find-up": "^2.1.0",
+    "mkdirp": "^0.5.1",
     "semver": "^5.4.1",
     "solidity-parser": "^0.4.0",
     "truffle-config": "^1.0.2",
