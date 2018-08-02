@@ -11,7 +11,7 @@ const semver = require("semver");
 const Config = require("truffle-config");
 const Resolver = require("truffle-resolver");
 const tsort = require("tsort");
-const SolidityParser = require("solidity-parser");
+const parser = require("solidity-parser-antlr");
 
 const PRAGAMA_SOLIDITY_VERSION_REGEX = /^\s*pragma\ssolidity\s+(.*?)\s*;/;
 const SUPPORTED_VERSION_DECLARATION_REGEX = /^\^?\d+(\.\d+){1,2}$/;
@@ -43,9 +43,14 @@ function getDirPath(filePath) {
 
 function getDependencies(filePath, fileContents) {
   try {
-    return SolidityParser.parse(fileContents, "imports").map(dependency =>
-      getNormalizedDependencyPath(dependency, filePath)
-    );
+    let ast = parser.parse(fileContents)
+    let imports = [];
+    parser.visit(ast, {
+      ImportDirective: function(node) {
+        imports.push(getNormalizedDependencyPath(node.path, filePath))
+      }
+    })
+    return imports
   } catch (error) {
     throw new Error(
       "Could not parse " + filePath + " for extracting its imports."
@@ -112,13 +117,13 @@ async function getSortedFilePaths(entryPoints) {
   return files;
 }
 
-async function printFileWithoutPragma(filePath, log) {
+async function printFileWithoutPragma(filePath) {
   const resolved = await resolve(filePath);
   const output = resolved.fileContents
     .replace(PRAGAMA_SOLIDITY_VERSION_REGEX, "")
     .replace(IMPORT_SOLIDITY_REGEX, "");
 
-  log(output.trim());
+  console.log(output.trim());
 }
 
 async function getFileCompilerVersionDeclaration(filePath) {
@@ -198,16 +203,16 @@ async function normalizeCompilerVersionDeclarations(files) {
   return maxCaretVersion;
 }
 
-async function printContactenation(files, log) {
+async function printContactenation(files) {
   const version = await normalizeCompilerVersionDeclarations(files);
 
   if (version) {
-    log("pragma solidity " + version + ";");
+    console.log("pragma solidity " + version + ";");
   }
 
   for (const file of files) {
-    log("\n// File: " + file + "\n");
-    await printFileWithoutPragma(file, log);
+    console.log("\n// File: " + file + "\n");
+    await printFileWithoutPragma(file);
   }
 }
 
@@ -227,7 +232,12 @@ function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
   return filePaths.map(f => path.relative(truffleRoot, path.resolve(f)));
 }
 
-async function flatten(filePaths, log) {
+async function main(filePaths) {
+  if (!filePaths.length) {
+    console.error("Usage: truffle-flattener <files>");
+    return;
+  }
+
   try {
     const truffleRoot = await getTruffleRoot();
     const filePathsFromTruffleRoot = getFilePathsFromTruffleRoot(
@@ -238,27 +248,10 @@ async function flatten(filePaths, log) {
     process.chdir(truffleRoot);
 
     const sortedFiles = await getSortedFilePaths(filePathsFromTruffleRoot);
-    await printContactenation(sortedFiles, log);
+    await printContactenation(sortedFiles);
   } catch (error) {
-    console.error(error, error.stack);
+    console.log(error, error.stack);
   }
 }
 
-async function main(filePaths) {
-  if (!filePaths.length) {
-    console.error("Usage: truffle-flattener <files>");
-    return;
-  }
-
-  await flatten(filePaths, str => console.log(str));
-}
-
-if (require.main === module) {
-  main(process.argv.slice(2));
-}
-
-module.exports = async function(filePaths) {
-  let res = "";
-  await flatten(filePaths, str => (res += str));
-  return res;
-};
+main(process.argv.slice(2));

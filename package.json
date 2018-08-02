@@ -18,7 +18,7 @@
   "dependencies": {
     "find-up": "^2.1.0",
     "semver": "^5.4.1",
-    "solidity-parser": "^0.4.0",
+    "solidity-parser-antlr": "^0.3.1",
     "truffle-config": "^1.0.2",
     "truffle-resolver": "^4.0.1",
     "tsort": "0.0.1"
