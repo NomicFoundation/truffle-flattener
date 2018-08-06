@@ -19,11 +19,11 @@
     "find-up": "^2.1.0",
     "semver": "^5.4.1",
     "solidity-parser": "^0.4.0",
-    "truffle-config": "^1.0.2",
-    "truffle-resolver": "^4.0.1",
+    "truffle-config": "^1.0.6",
+    "truffle-resolver": "^4.0.4",
     "tsort": "0.0.1"
   },
   "devDependencies": {
-    "prettier": "^1.7.4"
+    "prettier": "^1.14.0"
   }
 }
