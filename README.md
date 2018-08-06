@@ -27,7 +27,13 @@ concatenating everything in the right order, whithout duplicating any file.
 
 # Limitations
 
-If you deploy your contracts with truffle's migrations the output of 
+If you deploy your contracts with truffle's migrations the output of
 `truffle-flattener` may not match while verifying it in Etherscan. You
 can use [Solidity Flattener](https://github.com/BlockCatIO/solidity-flattener)
 in that case, or deploy your contracts from [Remix](https://remix.ethereum.org).
+
+# Shameless self-promomotion
+
+You should check out [Buidler](https://github.com/nomiclabs/buidler), our
+alternative to Truffle. It already has this feature built-in, is faster, and
+much more flexible.
