@@ -12,8 +12,7 @@ const Config = require("truffle-config");
 const Resolver = require("truffle-resolver");
 const tsort = require("tsort");
 const parser = require("solidity-parser-antlr");
-const mkdirp = require('mkdirp');
-
+const mkdirp = require("mkdirp");
 
 const PRAGAMA_SOLIDITY_VERSION_REGEX = /^\s*pragma\ssolidity\s+(.*?)\s*;/;
 const SUPPORTED_VERSION_DECLARATION_REGEX = /^\^?\d+(\.\d+){1,2}$/;
@@ -45,14 +44,14 @@ function getDirPath(filePath) {
 
 function getDependencies(filePath, fileContents) {
   try {
-    let ast = parser.parse(fileContents)
+    let ast = parser.parse(fileContents);
     let imports = [];
     parser.visit(ast, {
       ImportDirective: function(node) {
-        imports.push(getNormalizedDependencyPath(node.path, filePath))
+        imports.push(getNormalizedDependencyPath(node.path, filePath));
       }
-    })
-    return imports
+    });
+    return imports;
   } catch (error) {
     throw new Error(
       "Could not parse " + filePath + " for extracting its imports."
