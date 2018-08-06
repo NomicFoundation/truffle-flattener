@@ -11,8 +11,8 @@
     "truffle",
     "smart-contracts"
   ],
-  "homepage": "https://github.com/alcuadrado/truffle-flattener",
-  "repository": "github:alcuadrado/truffle-flattener",
+  "homepage": "https://github.com/nomiclabs/truffle-flattener",
+  "repository": "github:nomiclabs/truffle-flattener",
   "author": "Patricio Palladino",
   "license": "MIT",
   "dependencies": {
