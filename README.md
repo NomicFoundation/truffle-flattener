@@ -35,4 +35,4 @@ in that case, or deploy your contracts from [Remix](https://remix.ethereum.org).
 # Try Buidler
 
 Check out [Buidler](https://github.com/nomiclabs/buidler), our alternative to
-Truffle. It's got flattening built-in, is faster, and much more flexible.
+Truffle. It's got flattening built-in, it's faster, and much more flexible.
