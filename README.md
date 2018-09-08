@@ -8,6 +8,9 @@ This tool helps you to verify contracts developed with Truffle on
 [Remix](https://remix.ethereum.org), by merging your files and their
 dependencies in the right order.
 
+Check out [Buidler](https://github.com/nomiclabs/buidler), our alternative to
+Truffle. It's got flattening built-in, it's faster, and much more flexible.
+
 # Installation
 
 `npm install truffle-flattener -g`
@@ -31,8 +34,3 @@ If you deploy your contracts with truffle's migrations the output of
 `truffle-flattener` may not match while verifying it in Etherscan. You
 can use [Solidity Flattener](https://github.com/BlockCatIO/solidity-flattener)
 in that case, or deploy your contracts from [Remix](https://remix.ethereum.org).
-
-# Try Buidler
-
-Check out [Buidler](https://github.com/nomiclabs/buidler), our alternative to
-Truffle. It's got flattening built-in, it's faster, and much more flexible.
