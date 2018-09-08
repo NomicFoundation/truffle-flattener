@@ -1,6 +1,6 @@
 {
   "name": "truffle-flattener",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Truffle Flattener concats solidity files developed under Truffle with all of their dependencies",
   "bin": {
     "truffle-flattener": "index.js"
@@ -11,11 +11,15 @@
     "truffle",
     "smart-contracts"
   ],
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  },
   "homepage": "https://github.com/nomiclabs/truffle-flattener",
   "repository": "github:nomiclabs/truffle-flattener",
   "author": "Patricio Palladino",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^2.4.1",
     "find-up": "^2.1.0",
     "mkdirp": "^0.5.1",
     "semver": "^5.4.1",

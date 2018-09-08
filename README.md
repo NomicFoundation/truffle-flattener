@@ -32,8 +32,7 @@ If you deploy your contracts with truffle's migrations the output of
 can use [Solidity Flattener](https://github.com/BlockCatIO/solidity-flattener)
 in that case, or deploy your contracts from [Remix](https://remix.ethereum.org).
 
-# Shameless self-promomotion
+# Try Buidler
 
-You should check out [Buidler](https://github.com/nomiclabs/buidler), our
-alternative to Truffle. It already has this feature built-in, is faster, and
-much more flexible.
+Check out [Buidler](https://github.com/nomiclabs/buidler), our alternative to
+Truffle. It's got flattening built-in, is faster, and much more flexible.
