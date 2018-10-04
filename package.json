@@ -11,9 +11,6 @@
     "truffle",
     "smart-contracts"
   ],
-  "scripts": {
-    "postinstall": "node postinstall.js"
-  },
   "homepage": "https://github.com/nomiclabs/truffle-flattener",
   "repository": "github:nomiclabs/truffle-flattener",
   "author": "Patricio Palladino",
