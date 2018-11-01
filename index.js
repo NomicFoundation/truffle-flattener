@@ -39,7 +39,9 @@ function resolve(importPath) {
 }
 
 function getDirPath(filePath) {
-  return filePath.substring(0, filePath.lastIndexOf(path.sep));
+  let index1 = filePath.lastIndexOf(path.sep);
+  let index2 = filePath.lastIndexOf('/');
+  return filePath.substring(0, Math.max(index1, index2));
 }
 
 function getDependencies(filePath, fileContents) {
