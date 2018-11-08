@@ -66,7 +66,8 @@ function getNormalizedDependencyPath(dependency, filePath) {
     dependency = path.join(getDirPath(filePath), dependency);
     dependency = path.normalize(dependency);
   }
-  return dependency;
+
+  return dependency.replace(/\\/g, "/");
 }
 
 async function dependenciesDfs(graph, visitedFiles, filePath) {
