@@ -39,7 +39,9 @@ function resolve(importPath) {
 }
 
 function getDirPath(filePath) {
-  return filePath.substring(0, filePath.lastIndexOf(path.sep));
+  let index1 = filePath.lastIndexOf(path.sep);
+  let index2 = filePath.lastIndexOf('/');
+  return filePath.substring(0, Math.max(index1, index2));
 }
 
 function getDependencies(filePath, fileContents) {
@@ -64,7 +66,8 @@ function getNormalizedDependencyPath(dependency, filePath) {
     dependency = path.join(getDirPath(filePath), dependency);
     dependency = path.normalize(dependency);
   }
-  return dependency;
+
+  return dependency.replace(/\\/g, "/");
 }
 
 async function dependenciesDfs(graph, visitedFiles, filePath) {
