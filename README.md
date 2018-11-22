@@ -34,3 +34,7 @@ If you deploy your contracts with truffle's migrations the output of
 `truffle-flattener` may not match while verifying it in Etherscan. You
 can use [Solidity Flattener](https://github.com/BlockCatIO/solidity-flattener)
 in that case, or deploy your contracts from [Remix](https://remix.ethereum.org).
+
+
+Aliased imports (eg: `import {symbol1 as alias, symbol2} from "filename";`) are
+not supported by `truffle-flattener`.
