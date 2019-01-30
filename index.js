@@ -8,11 +8,10 @@ const path = require("path");
 
 const findUp = require("find-up");
 const semver = require("semver");
-const Config = require("truffle-config");
-const Resolver = require("truffle-resolver");
 const tsort = require("tsort");
 const parser = require("solidity-parser-antlr");
 const mkdirp = require("mkdirp");
+const Resolver = require("@resolver-engine/imports-fs").ImportsFsEngine;
 
 const PRAGAMA_SOLIDITY_VERSION_REGEX = /^\s*pragma\ssolidity\s+(.*?)\s*;/;
 const SUPPORTED_VERSION_DECLARATION_REGEX = /^\^?\d+(\.\d+){1,2}$/;
@@ -22,20 +21,11 @@ function unique(array) {
   return [...new Set(array)];
 }
 
-function resolve(importPath) {
-  const config = Config.default();
-  const resolver = new Resolver(config);
-
-  return new Promise((resolve, reject) => {
-    resolver.resolve(importPath, (err, fileContents, filePath) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      resolve({ fileContents, filePath });
-    });
-  });
+async function resolve(importPath) {
+  const resolver = Resolver();  
+  const filePath = await resolver.resolve(importPath);
+  const fileContents = fs.readFileSync(filePath).toString();
+  return { fileContents, filePath };
 }
 
 function getDirPath(filePath) {
@@ -56,7 +46,7 @@ function getDependencies(filePath, fileContents) {
     return imports;
   } catch (error) {
     throw new Error(
-      "Could not parse " + filePath + " for extracting its imports."
+      "Could not parse " + filePath + " for extracting its imports: " + error
     );
   }
 }

@@ -16,13 +16,12 @@
   "author": "Patricio Palladino",
   "license": "MIT",
   "dependencies": {
+    "@resolver-engine/imports-fs": "^0.2.2",
     "chalk": "^2.4.2",
     "find-up": "^2.1.0",
     "mkdirp": "^0.5.1",
     "semver": "^5.6.0",
     "solidity-parser-antlr": "^0.4.0",
-    "truffle-config": "^1.1.2",
-    "truffle-resolver": "^4.0.5",
     "tsort": "0.0.1"
   },
   "devDependencies": {
