@@ -16,6 +16,7 @@
   "author": "Patricio Palladino",
   "license": "MIT",
   "dependencies": {
+    "@babel/runtime": "^7.3.1",
     "@resolver-engine/imports-fs": "^0.2.2",
     "find-up": "^2.1.0",
     "mkdirp": "^0.5.1",
