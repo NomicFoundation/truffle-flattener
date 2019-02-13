@@ -5,16 +5,12 @@
 const process = require("process");
 const fs = require("fs");
 const path = require("path");
-
 const findUp = require("find-up");
-const semver = require("semver");
 const tsort = require("tsort");
 const parser = require("solidity-parser-antlr");
 const mkdirp = require("mkdirp");
 const Resolver = require("@resolver-engine/imports-fs").ImportsFsEngine;
 
-const PRAGAMA_SOLIDITY_VERSION_REGEX = /^\s*pragma\ssolidity\s+(.*?)\s*;/;
-const SUPPORTED_VERSION_DECLARATION_REGEX = /^\^?\d+(\.\d+){1,2}$/;
 const IMPORT_SOLIDITY_REGEX = /^\s*import(\s+).*$/gm;
 
 function unique(array) {
@@ -22,7 +18,7 @@ function unique(array) {
 }
 
 async function resolve(importPath) {
-  const resolver = Resolver();  
+  const resolver = Resolver();
   const filePath = await resolver.resolve(importPath);
   const fileContents = fs.readFileSync(filePath).toString();
   return { fileContents, filePath };
@@ -30,7 +26,7 @@ async function resolve(importPath) {
 
 function getDirPath(filePath) {
   let index1 = filePath.lastIndexOf(path.sep);
-  let index2 = filePath.lastIndexOf('/');
+  let index2 = filePath.lastIndexOf("/");
   return filePath.substring(0, Math.max(index1, index2));
 }
 
@@ -73,15 +69,13 @@ async function dependenciesDfs(graph, visitedFiles, filePath) {
   for (let dependency of dependencies) {
     graph.add(dependency, filePath);
 
-    const resolvedDependency = await resolve(dependency);
-
     if (!visitedFiles.includes(dependency)) {
       await dependenciesDfs(graph, visitedFiles, dependency);
     }
   }
 }
 
-async function getSortedFilePaths(entryPoints) {
+async function getSortedFilePaths(entryPoints, truffleRoot) {
   const graph = tsort();
   const visitedFiles = [];
 
@@ -104,109 +98,37 @@ async function getSortedFilePaths(entryPoints) {
 
   // If an entry has no dependency it won't be included in the graph, so we
   // add them and then dedup the array
-  const withEntries = topologicalSortedFiles.concat(entryPoints);
+  const withEntries = topologicalSortedFiles
+    .concat(entryPoints)
+    .map(f => fileNameToGlobalName(f, truffleRoot));
 
   const files = unique(withEntries);
 
   return files;
 }
 
-async function printFileWithoutPragma(filePath, log) {
+async function printFileWithoutImports(filePath, log) {
   const resolved = await resolve(filePath);
-  const output = resolved.fileContents
-    .replace(PRAGAMA_SOLIDITY_VERSION_REGEX, "")
-    .replace(IMPORT_SOLIDITY_REGEX, "");
+  const output = resolved.fileContents.replace(IMPORT_SOLIDITY_REGEX, "");
 
   log(output.trim());
 }
 
-async function getFileCompilerVersionDeclaration(filePath) {
-  const resolved = await resolve(filePath);
-
-  const matched = resolved.fileContents.match(PRAGAMA_SOLIDITY_VERSION_REGEX);
-
-  if (matched === null) {
-    return undefined;
-  }
-
-  const version = matched[1];
-
-  if (!SUPPORTED_VERSION_DECLARATION_REGEX.test(version)) {
-    throw new Error(
-      `Unsupported compiler version declaration in ${filePath}: ${version}. Only pinned or ^ versions are supported.`
+function fileNameToGlobalName(fileName, truffleRoot) {
+  let globalName = getFilePathsFromTruffleRoot([fileName], truffleRoot)[0];
+  if (globalName.indexOf("node_modules/") !== -1) {
+    globalName = globalName.substr(
+      globalName.indexOf("node_modules/") + "node_modules/".length
     );
   }
 
-  return version;
-}
-
-async function normalizeCompilerVersionDeclarations(files) {
-  let pinnedVersion;
-  let pinnedVersionFile;
-
-  let maxCaretVersion;
-  let maxCaretVersionFile;
-
-  for (const file of files) {
-    const version = await getFileCompilerVersionDeclaration(file);
-
-    if (version === undefined) {
-      continue;
-    }
-
-    if (version.startsWith("^")) {
-      if (maxCaretVersion == undefined) {
-        maxCaretVersion = version;
-        maxCaretVersionFile = file;
-      } else {
-        if (semver.gt(version.substr(1), maxCaretVersion.substr(1))) {
-          maxCaretVersion = version;
-          maxCaretVersionFile = file;
-        }
-      }
-    } else {
-      if (pinnedVersion === undefined) {
-        pinnedVersion = version;
-        pinnedVersionFile = file;
-      } else if (pinnedVersion !== version) {
-        throw new Error(
-          "Differernt pinned compiler versions in " +
-            pinnedVersionFile +
-            " and " +
-            file
-        );
-      }
-    }
-
-    if (maxCaretVersion !== undefined && pinnedVersion !== undefined) {
-      if (!semver.satisfies(pinnedVersion, maxCaretVersion)) {
-        throw new Error(
-          "Incompatible compiler version declarations in " +
-            maxCaretVersionFile +
-            " and " +
-            pinnedVersionFile
-        );
-      }
-    }
-  }
-
-  if (pinnedVersion !== undefined) {
-    return pinnedVersion;
-  }
-
-  return maxCaretVersion;
+  return globalName;
 }
 
 async function printContactenation(files, log) {
-  const version = await normalizeCompilerVersionDeclarations(files);
-
-  if (version) {
-    log("pragma solidity " + version + ";");
-  }
-
   for (const file of files) {
     log("\n// File: " + file + "\n");
-    await printFileWithoutPragma(file, log);
+    await printFileWithoutImports(file, log);
   }
 }
 
@@ -227,20 +149,25 @@ function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
 }
 
 async function flatten(filePaths, log) {
-  try {
-    const truffleRoot = await getTruffleRoot();
-    const filePathsFromTruffleRoot = getFilePathsFromTruffleRoot(
-      filePaths,
-      truffleRoot
-    );
+  const truffleRoot = await getTruffleRoot();
+  const filePathsFromTruffleRoot = getFilePathsFromTruffleRoot(
+    filePaths,
+    truffleRoot
+  );
 
-    process.chdir(truffleRoot);
+  // TODO: Remove this WD manipulation.
+  // If this is used as a tool this is OK, but it's not right
+  // when used as a library.
+  const wd = process.cwd();
+  process.chdir(truffleRoot);
 
-    const sortedFiles = await getSortedFilePaths(filePathsFromTruffleRoot);
-    await printContactenation(sortedFiles, log);
-  } catch (error) {
-    console.error(error, error.stack);
-  }
+  const sortedFiles = await getSortedFilePaths(
+    filePathsFromTruffleRoot,
+    truffleRoot
+  );
+  await printContactenation(sortedFiles, log);
+
+  process.chdir(wd);
 }
 
 async function main(args) {
@@ -262,7 +189,6 @@ async function main(args) {
       (arg, index) => index !== outputFileIndex && index !== outputFileIndex + 1
     );
 
-    // Ensure output directory exists
     if (outputFilePath) {
       let outputDirPath = path.dirname(outputFilePath);
       let isOutputDirExists =
@@ -302,11 +228,11 @@ async function main(args) {
 }
 
 if (require.main === module) {
-  main(process.argv.slice(2));
+  main(process.argv.slice(2)).catch(console.error);
 }
 
 module.exports = async function(filePaths) {
   let res = "";
-  await flatten(filePaths, str => (res += str));
+  await flatten(filePaths, str => (res += str + "\n"));
   return res;
 };
