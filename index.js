@@ -107,11 +107,12 @@ async function getSortedFilePaths(entryPoints, truffleRoot) {
   return files;
 }
 
-async function printFileWithoutImports(filePath, log) {
+async function fileContentWithoutImports(filePath) {
   const resolved = await resolve(filePath);
   const output = resolved.fileContents.replace(IMPORT_SOLIDITY_REGEX, "");
 
-  log(output.trim());
+  // normalize whitespace to a single trailing newline
+  return output.trim() + "\n";
 }
 
 function fileNameToGlobalName(fileName, truffleRoot) {
@@ -126,10 +127,11 @@ function fileNameToGlobalName(fileName, truffleRoot) {
 }
 
 async function printContactenation(files, log) {
-  for (const file of files) {
-    log("\n// File: " + file + "\n");
-    await printFileWithoutImports(file, log);
-  }
+  const parts = await Promise.all(files.map(async (file) => {
+    return "// File: " + file + "\n\n" + await fileContentWithoutImports(file);
+  }));
+
+  log(parts.join());
 }
 
 async function getTruffleRoot() {
@@ -220,9 +222,9 @@ async function main(args) {
 
   await flatten(filePaths, outputChunk => {
     if (outputFilePath) {
-      fs.appendFileSync(outputFilePath, outputChunk + "\n");
+      fs.appendFileSync(outputFilePath, outputChunk);
     } else {
-      console.log(outputChunk);
+      process.stdout.write(outputChunk);
     }
   });
 }
@@ -233,6 +235,6 @@ if (require.main === module) {
 
 module.exports = async function(filePaths) {
   let res = "";
-  await flatten(filePaths, str => (res += str + "\n"));
+  await flatten(filePaths, str => (res += str));
   return res;
 };
