@@ -131,7 +131,8 @@ async function printContactenation(files, log) {
     return "// File: " + file + "\n\n" + await fileContentWithoutImports(file);
   }));
 
-  log(parts.join());
+  // add a single empty line between parts
+  log(parts.join("\n"));
 }
 
 async function getTruffleRoot() {

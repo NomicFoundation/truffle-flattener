@@ -92,4 +92,22 @@ describe("flattening", function() {
 
     assert.equal(content, expected);
   });
+
+  it("Should add empty line between imported files", async function() {
+    const content = await flatten(["./contracts/whitespace/with-imports.sol"]);
+    const expected =
+      "// File: contracts/whitespace/simple.sol\n" +
+      "\n" +
+      "// A simple contract\n" +
+      "\n" +
+      "// File: contracts/whitespace/missing-trailing-newline.sol\n" +
+      "\n" +
+      "// This file misses a trailing newline. But flattener is nice and adds it.\n" +
+      "\n" +
+      "// File: contracts/whitespace/with-imports.sol\n" +
+      "\n" +
+      "// including others\n";
+
+    assert.equal(content, expected);
+  });
 });
