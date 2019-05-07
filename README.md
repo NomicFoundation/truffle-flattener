@@ -1,6 +1,6 @@
 # truffle-flattener
 
-![npm](https://img.shields.io/npm/v/truffle-flattener.svg)
+[![npm](https://img.shields.io/npm/v/truffle-flattener.svg)](https://www.npmjs.com/package/truffle-flattener)
 
 Truffle Flattener concats solidity files developed under Truffle with all of
 their dependencies.
