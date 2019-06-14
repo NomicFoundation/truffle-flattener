@@ -148,8 +148,14 @@ function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
   return filePaths.map(f => path.relative(truffleRoot, path.resolve(f)));
 }
 
-async function flatten(filePaths, log) {
-  const truffleRoot = await getTruffleRoot();
+async function flatten(filePaths, log, root) {
+  if (root && !fs.existsSync(root)) {
+    throw new Error(
+      "The specified root directory does not exist"
+    );
+  }
+
+  const truffleRoot = root || await getTruffleRoot();
   const filePathsFromTruffleRoot = getFilePathsFromTruffleRoot(
     filePaths,
     truffleRoot
@@ -231,8 +237,8 @@ if (require.main === module) {
   main(process.argv.slice(2)).catch(console.error);
 }
 
-module.exports = async function(filePaths) {
+module.exports = async function(filePaths, root) {
   let res = "";
-  await flatten(filePaths, str => (res += str + "\n"));
+  await flatten(filePaths, str => (res += str + "\n"), root);
   return res;
 };
