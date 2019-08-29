@@ -1,6 +1,6 @@
 {
   "name": "truffle-flattener",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Truffle Flattener concats solidity files developed under Truffle with all of their dependencies",
   "bin": {
     "truffle-flattener": "index.js"
@@ -23,7 +23,7 @@
     "@resolver-engine/imports-fs": "^0.2.2",
     "find-up": "^2.1.0",
     "mkdirp": "^0.5.1",
-    "solidity-parser-antlr": "^0.4.0",
+    "solidity-parser-antlr": "0.4.7",
     "tsort": "0.0.1"
   },
   "devDependencies": {
