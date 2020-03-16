@@ -7,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const findUp = require("find-up");
 const tsort = require("tsort");
-const parser = require("solidity-parser-antlr");
+const parser = require("solidity-parser-diligence");
 const mkdirp = require("mkdirp");
 const Resolver = require("@resolver-engine/imports-fs").ImportsFsEngine;
 
