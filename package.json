@@ -22,13 +22,13 @@
   "dependencies": {
     "@resolver-engine/imports-fs": "^0.2.2",
     "find-up": "^2.1.0",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.4",
     "solidity-parser-antlr": "^0.4.11",
     "tsort": "0.0.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^5.2.0",
+    "mocha": "^7.0.0",
     "openzeppelin-solidity": "2.1.2",
     "prettier": "^1.16.4"
   }
