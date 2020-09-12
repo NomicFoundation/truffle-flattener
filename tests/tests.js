@@ -71,7 +71,7 @@ describe("flattening", function() {
     ]);
 
     assert.include(flattened, "pragma solidity ^0.5.0;");
-    assert.include(flattened, "pragma solidity >=0.4.24 <0.6.0;");
+    assert.include(flattened, "pragma solidity >=0.4.24 <0.7.0;");
     assert.include(flattened, "pragma solidity ^0.5.2;");
   });
 
