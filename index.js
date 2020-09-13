@@ -75,7 +75,7 @@ async function dependenciesDfs(graph, visitedFiles, filePath) {
   }
 }
 
-async function getSortedFilePaths(entryPoints, truffleRoot) {
+async function getSortedFilePaths(entryPoints, projectRoot) {
   const graph = tsort();
   const visitedFiles = [];
 
@@ -100,7 +100,7 @@ async function getSortedFilePaths(entryPoints, truffleRoot) {
   // add them and then dedup the array
   const withEntries = topologicalSortedFiles
     .concat(entryPoints)
-    .map(f => fileNameToGlobalName(f, truffleRoot));
+    .map(f => fileNameToGlobalName(f, projectRoot));
 
   const files = unique(withEntries);
 
@@ -115,8 +115,8 @@ async function fileContentWithoutImports(filePath) {
   return output.trim() + "\n";
 }
 
-function fileNameToGlobalName(fileName, truffleRoot) {
-  let globalName = getFilePathsFromTruffleRoot([fileName], truffleRoot)[0];
+function fileNameToGlobalName(fileName, projectRoot) {
+  let globalName = getFilePathsFromProjectRoot([fileName], projectRoot)[0];
   if (globalName.indexOf("node_modules/") !== -1) {
     globalName = globalName.substr(
       globalName.indexOf("node_modules/") + "node_modules/".length
@@ -127,52 +127,59 @@ function fileNameToGlobalName(fileName, truffleRoot) {
 }
 
 async function printContactenation(files, log) {
-  const parts = await Promise.all(files.map(async (file) => {
-    return "// File: " + file + "\n\n" + await fileContentWithoutImports(file);
-  }));
+  const parts = await Promise.all(
+    files.map(async file => {
+      return (
+        "// File: " + file + "\n\n" + (await fileContentWithoutImports(file))
+      );
+    })
+  );
 
   // add a single empty line between parts
   log(parts.join("\n"));
 }
 
-async function getTruffleRoot() {
-  let truffleConfigPath = await findUp(["truffle.js", "truffle-config.js"]);
-  if (!truffleConfigPath) {
+async function getProjectRoot() {
+  let configFilePath = await findUp([
+    "truffle.js",
+    "truffle-config.js",
+    "buidler.config.js",
+    "buidler.config.ts"
+  ]);
+  if (!configFilePath) {
     throw new Error(`
-      Truffle Flattener must be run inside a Truffle project:
-      truffle.js or truffle-config.js not found
+      Truffle Flattener must be run inside a Truffle or Buidler project:
+      truffle.js, truffle-config.js, buidler.config.js, nor buidler.config.ts found
     `);
   }
 
-  return getDirPath(truffleConfigPath);
+  return getDirPath(configFilePath);
 }
 
-function getFilePathsFromTruffleRoot(filePaths, truffleRoot) {
-  return filePaths.map(f => path.relative(truffleRoot, path.resolve(f)));
+function getFilePathsFromProjectRoot(filePaths, projectRoot) {
+  return filePaths.map(f => path.relative(projectRoot, path.resolve(f)));
 }
 
 async function flatten(filePaths, log, root) {
   if (root && !fs.existsSync(root)) {
-    throw new Error(
-      "The specified root directory does not exist"
-    );
+    throw new Error("The specified root directory does not exist");
   }
 
-  const truffleRoot = root || await getTruffleRoot();
-  const filePathsFromTruffleRoot = getFilePathsFromTruffleRoot(
+  const projectRoot = root || (await getProjectRoot());
+  const filePathsFromProjectRoot = getFilePathsFromProjectRoot(
     filePaths,
-    truffleRoot
+    projectRoot
   );
 
   // TODO: Remove this WD manipulation.
   // If this is used as a tool this is OK, but it's not right
   // when used as a library.
   const wd = process.cwd();
-  process.chdir(truffleRoot);
+  process.chdir(projectRoot);
 
   const sortedFiles = await getSortedFilePaths(
-    filePathsFromTruffleRoot,
-    truffleRoot
+    filePathsFromProjectRoot,
+    projectRoot
   );
   await printContactenation(sortedFiles, log);
 
