@@ -71,7 +71,7 @@ describe("flattening", function() {
     ]);
 
     assert.include(flattened, "pragma solidity ^0.5.0;");
-    assert.include(flattened, "pragma solidity >=0.4.24 <0.6.0;");
+    assert.include(flattened, "pragma solidity >=0.4.24 <0.8.0;");
     assert.include(flattened, "pragma solidity ^0.5.2;");
   });
 
@@ -109,5 +109,14 @@ describe("flattening", function() {
       "// including others\n";
 
     assert.equal(content, expected);
+  });
+    
+  it("Should fail if the provided root directory does not exist", async function() {
+    try {
+      await flatten(["./contracts/child.sol"], "no valid directory");
+      assert.fail("This should have failed");
+    } catch (error) {
+      assert.strictEqual(error.message, "The specified root directory does not exist");
+    }
   });
 });
