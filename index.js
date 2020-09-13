@@ -242,6 +242,6 @@ if (require.main === module) {
 
 module.exports = async function(filePaths, root) {
   let res = "";
-  await flatten(filePaths, str => (res += str));
+  await flatten(filePaths, str => (res += str), root);
   return res;
 };
