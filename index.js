@@ -240,18 +240,27 @@ async function main(args) {
     outputFileContent += outputChunk;
   });
 
-  // fix duplicate SPDX license identifiers
+  // fix duplicate SPDX license identifiers and abiv2 pragmas
   const outputLinesArray = outputFileContent.split('\n');
   const licenses = []; // string[]
-  const regex = /SPDX-License-Identifier/;
+  const spdxRegex = /SPDX-License-Identifier/;
+  const abiv2Regex = /pragma experimental ABIEncoderV2;/;
+  let abiV2Exists = false;
   for (const [index, line] of outputLinesArray.entries()) {
-    if (regex.test(line)) {
+    if (spdxRegex.test(line)) {
       const words = line.split(':');
-      const wordIndex = words.findIndex((word) => regex.test(word)); // Actual license idenfifier after this
+      const wordIndex = words.findIndex((word) => spdxRegex.test(word)); // Actual license idenfifier after this
 
       const licenseIdentifier = words[wordIndex + 1].replace(/ /g, '');
       licenses.push(licenseIdentifier);
       outputLinesArray.splice(index, 1);
+    }
+    if (abiv2Regex.test(line)) {
+      if(abiV2Exists) {
+        outputLinesArray.splice(index, 1);
+      } else {
+        abiV2Exists = true;
+      }
     }
   }
   outputLinesArray.unshift(
