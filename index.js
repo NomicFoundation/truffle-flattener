@@ -234,13 +234,38 @@ async function main(args) {
     return;
   }
 
-  await flatten(filePaths, outputChunk => {
-    if (outputFilePath) {
-      fs.appendFileSync(outputFilePath, outputChunk);
-    } else {
-      process.stdout.write(outputChunk);
-    }
+  let outputFileContent = '';
+
+  await flatten(filePaths, (outputChunk) => {
+    outputFileContent += outputChunk;
   });
+
+  // fix duplicate SPDX license identifiers
+  const outputLinesArray = outputFileContent.split('\n');
+  const licenses = []; // string[]
+  const regex = /SPDX-License-Identifier/;
+  for (const [index, line] of outputLinesArray.entries()) {
+    if (regex.test(line)) {
+      const words = line.split(':');
+      const wordIndex = words.findIndex((word) => regex.test(word)); // Actual license idenfifier after this
+
+      const licenseIdentifier = words[wordIndex + 1].replace(/ /g, '');
+      licenses.push(licenseIdentifier);
+      outputLinesArray.splice(index, 1);
+    }
+  }
+  outputLinesArray.unshift(
+    '// SPDX-License-Identifier: ' + [...new Set(licenses)].join(' AND ')
+  );
+
+  outputFileContent = outputLinesArray.join('\n');
+
+  if (outputFilePath) {
+    fs.writeFileSync(outputFilePath, outputFileContent);
+  } else {
+    process.stdout.write(outputChunk);
+  }
+  
 }
 
 if (require.main === module) {
