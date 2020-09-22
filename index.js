@@ -234,29 +234,29 @@ async function main(args) {
     return;
   }
 
-  let outputFileContent = '';
+  let outputFileContent = "";
 
   await flatten(filePaths, (outputChunk) => {
     outputFileContent += outputChunk;
   });
 
   // fix duplicate SPDX license identifiers and abiv2 pragmas
-  const outputLinesArray = outputFileContent.split('\n');
+  const outputLinesArray = outputFileContent.split("\n");
   const licenses = []; // string[]
   const spdxRegex = /SPDX-License-Identifier/;
   const abiv2Regex = /pragma experimental ABIEncoderV2;/;
   let abiV2Exists = false;
   for (const [index, line] of outputLinesArray.entries()) {
     if (spdxRegex.test(line)) {
-      const words = line.split(':');
+      const words = line.split(":");
       const wordIndex = words.findIndex((word) => spdxRegex.test(word)); // Actual license idenfifier after this
 
-      const licenseIdentifier = words[wordIndex + 1].replace(/ /g, '');
+      const licenseIdentifier = words[wordIndex + 1].replace(/ /g, "");
       licenses.push(licenseIdentifier);
       outputLinesArray.splice(index, 1);
     }
     if (abiv2Regex.test(line)) {
-      if(abiV2Exists) {
+      if (abiV2Exists) {
         outputLinesArray.splice(index, 1);
       } else {
         abiV2Exists = true;
@@ -264,17 +264,16 @@ async function main(args) {
     }
   }
   outputLinesArray.unshift(
-    '// SPDX-License-Identifier: ' + [...new Set(licenses)].join(' AND ')
+    "// SPDX-License-Identifier: " + [...new Set(licenses)].join(" AND ")
   );
 
-  outputFileContent = outputLinesArray.join('\n');
+  outputFileContent = outputLinesArray.join("\n");
 
   if (outputFilePath) {
     fs.writeFileSync(outputFilePath, outputFileContent);
   } else {
     process.stdout.write(outputChunk);
   }
-  
 }
 
 if (require.main === module) {
