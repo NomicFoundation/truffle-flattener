@@ -11,7 +11,7 @@ const parser = require("@solidity-parser/parser");
 const mkdirp = require("mkdirp");
 const Resolver = require("@resolver-engine/imports-fs").ImportsFsEngine;
 
-const IMPORT_SOLIDITY_REGEX = /^\s*import(\s+).*$/gm;
+const IMPORT_SOLIDITY_REGEX = /^\s*import(\s+)[\s\S]*?;\s*$/gm;
 
 function unique(array) {
   return [...new Set(array)];
