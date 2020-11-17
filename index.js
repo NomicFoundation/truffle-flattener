@@ -143,13 +143,15 @@ async function getProjectRoot() {
   let configFilePath = await findUp([
     "truffle.js",
     "truffle-config.js",
+    "hardhat.config.js",
+    "hardhat.config.ts",
     "buidler.config.js",
     "buidler.config.ts"
   ]);
   if (!configFilePath) {
     throw new Error(`
-      Truffle Flattener must be run inside a Truffle or Buidler project:
-      truffle.js, truffle-config.js, buidler.config.js, nor buidler.config.ts found
+      Truffle Flattener must be run inside a Truffle or Hardhat project:
+      truffle.js, truffle-config.js, hardhat.config.js, hardhat.config.ts, buidler.config.js, nor buidler.config.ts found
     `);
   }
 

@@ -2,15 +2,15 @@
 
 [![npm](https://img.shields.io/npm/v/truffle-flattener.svg)](https://www.npmjs.com/package/truffle-flattener)
 
-Truffle Flattener concats solidity files from Truffle and Buidler projects 
+Truffle Flattener concats solidity files from Truffle and Hardhat projects 
 with all of their dependencies.
 
-This tool helps you to verify contracts developed with Truffle and Buidler 
+This tool helps you to verify contracts developed with Truffle and Hardhat 
 on [Etherscan](https://etherscan.io), or debugging them on
 [Remix](https://remix.ethereum.org), by merging your files and their
 dependencies in the right order.
 
-If you are still using Truffle, we recommend you try [Buidler](https://github.com/nomiclabs/buidler), 
+If you are still using Truffle, we recommend you try [Hardhat](https://github.com/nomiclabs/hardhat), 
 our Ethereum development environment, which is much faster and flexible.
 
 # Installation
