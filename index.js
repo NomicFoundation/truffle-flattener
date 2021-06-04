@@ -67,9 +67,8 @@ async function dependenciesDfs(graph, visitedFiles, filePath) {
   );
 
   for (let dependency of dependencies) {
-    graph.add(dependency, filePath);
-
     if (!visitedFiles.includes(dependency)) {
+      graph.add(dependency, filePath);
       await dependenciesDfs(graph, visitedFiles, dependency);
     }
   }
