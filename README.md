@@ -19,7 +19,7 @@ our Ethereum development environment, which is much faster and flexible.
 
 # Usage
 
-Just intall it with npm in your truffle project and run
+Just install it with npm in your truffle project and run
 `truffle-flattener <solidity-files>`.
 
 # Limitations
