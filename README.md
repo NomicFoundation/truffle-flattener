@@ -13,16 +13,20 @@ dependencies in the right order.
 If you are still using Truffle, we recommend you try [Buidler](https://github.com/nomiclabs/buidler), 
 our Ethereum development environment, which is much faster and flexible.
 
-# Installation
+# Hardhat support
+
+If you are using Hardhat, you don't need this project. Use `npx hardhat flatten` instead.
+
+## Installation
 
 `npm install truffle-flattener -g`
 
-# Usage
+## Usage
 
-Just intall it with npm in your truffle project and run
+Just install it with npm in your truffle project and run
 `truffle-flattener <solidity-files>`.
 
-# Limitations
+## Limitations
 
 Aliased imports (eg: `import {symbol1 as alias, symbol2} from "filename";`) are
 not supported by `truffle-flattener`.
