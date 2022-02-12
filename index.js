@@ -100,7 +100,15 @@ async function getSortedFilePaths(entryPoints, projectRoot) {
   // add them and then dedup the array
   const withEntries = topologicalSortedFiles
     .concat(entryPoints)
-    .map(f => fileNameToGlobalName(f, projectRoot));
+    .map(f => {
+      // Remove the prefix node modules.
+      const fileName = fileNameToGlobalName(f, projectRoot)
+      if (fileName.substring(0, 14) == 'node_modules\\@') {
+        return fileName.substring(13)
+      } else {
+        return fileName
+      }
+    });
 
   const files = unique(withEntries);
 
