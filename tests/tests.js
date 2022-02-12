@@ -119,4 +119,20 @@ describe("flattening", function() {
       assert.strictEqual(error.message, "The specified root directory does not exist");
     }
   });
+
+  it("Should handle multiline imports", async function() {
+    const content = await flatten([
+      "./contracts/whitespace/multiline-import.sol"
+    ]);
+    const expected =
+      "// File: contracts/whitespace/simple.sol\n" +
+      "\n" +
+      "// A simple contract\n" +
+      "\n" +
+      "// File: contracts/whitespace/multiline-import.sol\n" +
+      "\n" +
+      "// including others\n";
+
+    assert.equal(content, expected);
+  });
 });
