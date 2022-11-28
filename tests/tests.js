@@ -16,11 +16,11 @@ describe("flattening", function() {
     process.chdir(__dirname);
   });
 
-  it("Should include the parent if the only entry is the child", async function() {
+  it.only("Should include the parent if the only entry is the child", async function() {
     const files = getFilesInFlattenedOrder(
       await flatten(["./contracts/child.sol"])
     );
-
+    console.log(files);
     assert.include(files, "contracts/parent.sol");
   });
 
