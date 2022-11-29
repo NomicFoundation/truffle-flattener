@@ -20,7 +20,6 @@ describe("flattening", function() {
     const files = getFilesInFlattenedOrder(
       await flatten(["./contracts/child.sol"])
     );
-
     assert.include(files, "contracts/parent.sol");
   });
 
@@ -134,5 +133,19 @@ describe("flattening", function() {
       "// including others\n";
 
     assert.equal(content, expected);
+  });
+
+  it("Should remove multiple SPDX licenses and keep one", async function() {
+    const flattened = await flatten([
+      "./contracts/child.sol",
+      "./contracts/child.sol",
+      "./contracts/parent.sol"
+    ]);
+
+    const LICENSE_IDENTIFIER_REGEX = /^\s*\/\/ SPDX-License-Identifier:(\s+)[\s\S]*?\s*$/gm;
+    const licenses = flattened.match(LICENSE_IDENTIFIER_REGEX);
+
+    assert.equal(licenses.length, 1);
+    assert.include(flattened, "// SPDX-License-Identifier: MIT");
   });
 });

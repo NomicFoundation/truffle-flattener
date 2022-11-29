@@ -12,6 +12,7 @@ const mkdirp = require("mkdirp");
 const Resolver = require("@resolver-engine/imports-fs").ImportsFsEngine;
 
 const IMPORT_SOLIDITY_REGEX = /^\s*import(\s+)[\s\S]*?;\s*$/gm;
+const LICENSE_IDENTIFIER_REGEX = /^\s*\/\/ SPDX-License-Identifier:(\s+)[\s\S]*?\s*$/gm;
 
 function unique(array) {
   return [...new Set(array)];
@@ -115,9 +116,10 @@ async function getSortedFilePaths(entryPoints, projectRoot) {
   return files;
 }
 
-async function fileContentWithoutImports(filePath) {
+async function fileContentWithoutImportsAndSPDXLicense(filePath) {
   const resolved = await resolve(filePath);
-  const output = resolved.fileContents.replace(IMPORT_SOLIDITY_REGEX, "");
+  let output = resolved.fileContents.replace(IMPORT_SOLIDITY_REGEX, "");
+  output = output.replace(LICENSE_IDENTIFIER_REGEX, "");
 
   // normalize whitespace to a single trailing newline
   return output.trim() + "\n";
@@ -134,17 +136,26 @@ function fileNameToGlobalName(fileName, projectRoot) {
   return globalName;
 }
 
+async function getSPDXLicense(files) {
+  return (await resolve(files.pop())).fileContents.match(LICENSE_IDENTIFIER_REGEX);
+}
+
 async function printContactenation(files, log) {
   const parts = await Promise.all(
     files.map(async file => {
       return (
-        "// File: " + file + "\n\n" + (await fileContentWithoutImports(file))
+        "// File: " + file + "\n\n" + (await fileContentWithoutImportsAndSPDXLicense(file))
       );
     })
   );
 
-  // add a single empty line between parts
-  log(parts.join("\n"));
+  // get license and add a single empty line between parts
+  const license = await getSPDXLicense(files);
+  if (license) {
+    log(license.concat(parts).join("\n"));
+  } else {
+    log(parts.join("\n"));
+  }
 }
 
 async function getProjectRoot() {
