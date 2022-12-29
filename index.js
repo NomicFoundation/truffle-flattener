@@ -12,7 +12,8 @@ const mkdirp = require("mkdirp");
 const Resolver = require("@resolver-engine/imports-fs").ImportsFsEngine;
 
 const IMPORT_SOLIDITY_REGEX = /^\s*import(\s+)[\s\S]*?;\s*$/gm;
-const LICENSE_IDENTIFIER_REGEX = /^\s*\/\/ SPDX-License-Identifier:(\s+)[\s\S]*?\s*$/gm;
+const SPDX_FULL_LICENSE_IDENTIFIER_REGEX = /^\s*\/\/ SPDX-License-Identifier:(\s+)[\s\S]*?\s*$/gm;
+const SPDX_LICENSE_IDENTIFIER_REGEX = /SPDX-License/gm;
 
 function unique(array) {
   return [...new Set(array)];
@@ -116,10 +117,10 @@ async function getSortedFilePaths(entryPoints, projectRoot) {
   return files;
 }
 
-async function fileContentWithoutImportsAndSPDXLicense(filePath) {
+async function fileContentWithoutImportsAndConcatLicenses(filePath) {
   const resolved = await resolve(filePath);
   let output = resolved.fileContents.replace(IMPORT_SOLIDITY_REGEX, "");
-  output = output.replace(LICENSE_IDENTIFIER_REGEX, "");
+  output = output.replace(SPDX_LICENSE_IDENTIFIER_REGEX, "AND License");
 
   // normalize whitespace to a single trailing newline
   return output.trim() + "\n";
@@ -137,14 +138,14 @@ function fileNameToGlobalName(fileName, projectRoot) {
 }
 
 async function getSPDXLicense(files) {
-  return (await resolve(files.pop())).fileContents.match(LICENSE_IDENTIFIER_REGEX);
+  return (await resolve(files.pop())).fileContents.match(SPDX_FULL_LICENSE_IDENTIFIER_REGEX);
 }
 
 async function printContactenation(files, log) {
   const parts = await Promise.all(
     files.map(async file => {
       return (
-        "// File: " + file + "\n\n" + (await fileContentWithoutImportsAndSPDXLicense(file))
+        "// File: " + file + "\n\n" + (await fileContentWithoutImportsAndConcatLicenses(file))
       );
     })
   );

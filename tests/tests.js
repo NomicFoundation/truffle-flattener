@@ -135,7 +135,7 @@ describe("flattening", function() {
     assert.equal(content, expected);
   });
 
-  it("Should remove multiple SPDX licenses and keep one", async function() {
+  it("Should concatenate multiple SPDX licenses", async function() {
     const flattened = await flatten([
       "./contracts/child.sol",
       "./contracts/child.sol",
@@ -146,6 +146,6 @@ describe("flattening", function() {
     const licenses = flattened.match(LICENSE_IDENTIFIER_REGEX);
 
     assert.equal(licenses.length, 1);
-    assert.include(flattened, "// SPDX-License-Identifier: MIT");
+    assert.include(flattened, "// AND License-Identifier: MIT");
   });
 });
